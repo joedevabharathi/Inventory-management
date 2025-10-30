@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.stock-page {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.02);
+    min-height: calc(100vh - 60px);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.page-header h2 i {
+    margin-right: 12px;
+    font-size: 28px;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-container {
+    flex: 0 0 50%;
+    max-width: 500px;
+}
+
+.search-form {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    height: 42px; /* Fixed height for consistency */
+}
+
+.search-input {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input i {
+    position: absolute;
+    left: 12px;
+    color: #95a5a6;
+    z-index: 1;
+}
+
+.search-input input {
+    width: 100%;
+    height: 100%;
+    padding: 8px 12px 8px 35px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.search-input input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.table-responsive {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    background: linear-gradient(145deg, #2980b9, #3498db);
+    color: white;
+    font-weight: 600;
+    padding: 16px 20px;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    border: none;
+    position: relative;
+}
+
+th:first-child {
+    border-top-left-radius: 12px;
+}
+
+th:last-child {
+    border-top-right-radius: 12px;
+}
+
+td {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+    vertical-align: middle;
+    font-size: 14px;
+    color: #2c3e50;
+    transition: all 0.2s ease;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+tr:hover td {
+    color: #2980b9;
+}
+
+.stock-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-ok {
+    background-color: #dff6dd;
+    color: #0d5302;
+}
+
+.status-low {
+    background-color: #ffeaea;
+    color: #c62828;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+    .stock-page {
+        padding: 15px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .search-container {
+        width: 100%;
+        max-width: none;
+    }
+
+    .table-responsive {
+        margin-top: 15px;
+        border-radius: 8px;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+
+    .stock-status {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .page-header h2 {
+        font-size: 20px;
+    }
+
+    .page-header h2 i {
+        font-size: 24px;
+    }
+}
+</style>
+
+<div class="stock-page">
+    <div class="page-header">
+        <h2><i class="fas fa-warehouse"></i> Stock Levels</h2>
+        <div class="search-container">
+            <form method="GET" action="{{ url_for('stock') }}" class="search-form">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" 
+                           placeholder="Search by product name or location..." 
+                           value="{{ search if search else '' }}"
+                           autocomplete="off">
+                </div>
+                <button type="submit" class="btn-primary">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Current Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.location_display if p.location_display else 'Not assigned' }}</td>
+                    <td>{{ p.quantity }}</td>
+                    <td>
+                        <span class="stock-status {{ 'status-low' if p.quantity < 10 else 'status-ok' }}">
+                            {{ 'Low Stock' if p.quantity < 10 else 'In Stock' }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

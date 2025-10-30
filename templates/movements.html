@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="movements-page">
+    <div class="page-header">
+        <h2><i class="fas fa-exchange-alt"></i> Stock Movements</h2>
+        <button class="btn-primary" onclick="document.getElementById('addMovementModal').style.display='block'">
+            <i class="fas fa-plus"></i> Record Movement
+        </button>
+    </div>
+
+    <!-- Add Movement Modal -->
+    <div id="addMovementModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+            <h3>Record Stock Movement</h3>
+            <form method="POST" action="{{ url_for('add_movement') }}" class="movement-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label>Select Product</label>
+                    <select name="product_id" required>
+                        <option value="">Choose Product</option>
+                        {% for p in products %}
+                        <option value="{{ p.id }}">{{ p.name }} (Available: {{ p.quantity }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>From Location</label>
+                    <select name="from_location" required>
+                        <option value="">Source Location</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.id }}">{{ loc.branch_name }} ({{ loc.city }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>To Location</label>
+                    <select name="to_location" required>
+                        <option value="">Destination Location</option>
+                        {% for loc in locations %}
+                        <option value="{{ loc.id }}">{{ loc.branch_name }} ({{ loc.city }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quantity to Move</label>
+                    <input type="number" name="quantity" min="1" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Record Movement</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Movement ID</th>
+                    <th>Product</th>
+                    <th>From Location</th>
+                    <th>To Location</th>
+                    <th>Quantity</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movements %}
+                <tr>
+                    <td>#{{ m.id }}</td>
+                    <td>{{ m.product }}</td>
+                    <td>{{ m.from_loc }}</td>
+                    <td>{{ m.to_loc }}</td>
+                    <td>{{ m.quantity }}</td>
+                    <td>{{ m.timestamp.strftime('%Y-%m-%d %H:%M:%S') if m.timestamp else 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any JavaScript functionality needed for the movements page
+});
+</script>
+{% endblock %}

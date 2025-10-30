@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+    <h2 class="welcome-text">Welcome, {{ session.get('username', 'Admin') }}! 👋</h2>
+    
+    <div class="insights-grid">
+        <div class="insight-card">
+            <i class="fas fa-boxes card-icon"></i>
+            <h3>Total Products</h3>
+            <p class="number">{{ insights.total_products }}</p>
+        </div>
+        <div class="insight-card">
+            <i class="fas fa-map-marker-alt card-icon"></i>
+            <h3>Total Locations</h3>
+            <p class="number">{{ insights.total_locations }}</p>
+        </div>
+        <div class="insight-card">
+            <i class="fas fa-cubes card-icon"></i>
+            <h3>Total Stock</h3>
+            <p class="number">{{ insights.total_stock }}</p>
+        </div>
+        <div class="insight-card">
+            <i class="fas fa-exchange-alt card-icon"></i>
+            <h3>Total Movements</h3>
+            <p class="number">{{ insights.total_movements }}</p>
+        </div>
+    </div>
+
+    <div class="recent-activities">
+        <h3><i class="fas fa-history"></i> Recent Activities</h3>
+        <div class="activity-list">
+            {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-item">
+                    <span class="activity-icon">📦</span>
+                    <div class="activity-details">
+                        <p class="activity-title">Stock Movement</p>
+                        <p>{{ activity.quantity }} units of <strong>{{ activity.product_name }}</strong></p>
+                        <p class="activity-path">From: {{ activity.from_loc }} ➡️ To: {{ activity.to_loc }}</p>
+                                            <small class="activity-time">{{ activity.timestamp.strftime('%Y-%m-%d %H:%M:%S') if activity.timestamp else 'N/A' }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-activities">No recent activities to display</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

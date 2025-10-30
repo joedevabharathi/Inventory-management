@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+}
+.modal .form-group { margin-bottom: 15px; }
+.modal .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.modal .form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.modal .form-actions { margin-top: 20px; text-align: right; }
+.close {
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close:hover { color: red; }
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-secondary:hover { background-color: #5a6268; }
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+.btn-delete:hover { background-color: #c82333; color: white; }
+.actions { white-space: nowrap; }
+</style>
+
+<div class="locations-page">
+    <div class="page-header">
+        <h2><i class="fas fa-map-marker-alt"></i> Locations</h2>
+        <button class="btn-primary" onclick="document.getElementById('addLocationModal').style.display='block'">
+            <i class="fas fa-plus"></i> Add New Location
+        </button>
+    </div>
+
+    <!-- Add Location Modal -->
+    <div id="addLocationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addLocationModal')">&times;</span>
+            <h3>Add New Location</h3>
+            <form method="POST" action="{{ url_for('add_location') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label>Location ID</label>
+                    <input type="text" name="location_id" placeholder="e.g., LOC001" required>
+                </div>
+                <div class="form-group">
+                    <label>Branch Name</label>
+                    <input type="text" name="branch_name" required>
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Location</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Location Modal -->
+    <div id="editLocationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editLocationModal')">&times;</span>
+            <h3>Edit Location</h3>
+            <form id="editLocationForm" method="POST" onsubmit="return handleEditSubmit(event)">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="edit-location-id" name="id">
+                <div class="form-group">
+                    <label>Branch Name</label>
+                    <input type="text" name="branch_name" id="edit-branch-name" required>
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" id="edit-city" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('editLocationModal')" style="margin-right: 10px;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-primary save-changes">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Locations Table -->
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Location ID</th>
+                    <th>Branch Name</th>
+                    <th>City</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loc in locations %}
+                <tr>
+                    <td>{{ loc.location_id }}</td>
+                    <td>{{ loc.branch_name }}</td>
+                    <td>{{ loc.city }}</td>
+                    <td class="actions">
+                        <button type="button" class="btn-edit" data-location='{{ loc|tojson|safe }}'>
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn-delete" onclick="deleteLocation({{ loc.id }}, '{{ loc.branch_name }}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', function() {
+            const locationData = JSON.parse(this.getAttribute('data-location'));
+            editLocation(locationData);
+        });
+    });
+});
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function editLocation(location) {
+    document.getElementById('edit-location-id').value = location.id;
+    document.getElementById('edit-branch-name').value = location.branch_name || '';
+    document.getElementById('edit-city').value = location.city || '';
+    const form = document.getElementById('editLocationForm');
+    form.action = "{{ url_for('update_location', id=0) }}".replace('0', location.id);
+    openModal('editLocationModal');
+}
+
+function handleEditSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('✅ Location updated successfully!');
+            closeModal('editLocationModal');
+            window.location.reload();
+        } else {
+            alert('❌ ' + (data.message || 'Error updating location'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error updating location');
+    });
+}
+
+// ✅ FRONTEND-ONLY DELETE (No backend call)
+function deleteLocation(id, branchName) {
+    if (!confirm(`⚠️ Are you sure you want to remove "${branchName}" from the list?`)) return;
+
+    // Find the row containing the button
+    const button = event.target.closest('button');
+    const row = button.closest('tr');
+
+    // Remove the row from the table
+    row.remove();
+
+    alert(`🗑️ "${branchName}" removed from the list (frontend only).`);
+}
+
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+};
+</script>
+
+{% endblock %}
