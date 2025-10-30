@@ -10,4 +10,4 @@
 
 | Stock | Stock Levels |
 |---|---|
-| <img src="https://github.com/user-attachments/assets/c6e4ab9d-a228-47d6-85e7-925877b5f3da" width="350"/> | <img src="https://github.com/user-attachments/assets/5dce0f3e-e689-4815-9d77-2de2d8b67ce8" width="350"/> |
+| <img src="https://github.com/user-attachments/assets/c6e4ab9d-a228-47d6-85e7-925877b5f3da" width="350"/> | |
