@@ -25,10 +25,8 @@ Track, add, update and organize product inventory.
 ## 📍 Locations Management
 
 View and maintain warehouse / branch location details.
+![Uploading WhatsApp Image 2025-10-30 at 22.21.55_a6958cf5.jpg…]()
 
-<img src="https://github.com/user-attachments/assets/f365a2b6-0394-49e5-85fc-f41ca6bb4a05" width="700"/>
-
----
 
 ## 📦 Stock Management
 
