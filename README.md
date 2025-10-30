@@ -42,4 +42,5 @@ Monitor inventory, update quantity, manage warehouse stock.
 
 Analyze product stock levels & re-order points.
 
-<img src="https://github.com/user-attachments/assets/5dce0f3e-e689-4815-9d77-2de2d8b67ce8" width="700"/>
+![WhatsApp Image 2025-10-30 at 22 22 23_505855b5](https://github.com/user-attachments/assets/d284fd07-a04c-4000-92e2-eef64f8b09f8)
+
